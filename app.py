@@ -11,7 +11,7 @@ SESSIONS_DIR.mkdir(exist_ok=True)
 
 def list_sessions():
     """Return list of session IDs (filenames without .json)."""
-    return [p.stem for p in SESSIONS_DIR.glob("*.json")]
+    return [p.stem for p in sorted(SESSIONS_DIR.glob("*.json"), key = lambda x: x.stat().st_ctime)]
 
 def choose_session():
     existing = list_sessions()
