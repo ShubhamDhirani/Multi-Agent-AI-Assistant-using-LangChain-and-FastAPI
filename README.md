@@ -1,6 +1,6 @@
-# Ollama Chatbot
+# QnA Chatbot
 
-A simple, session-based command-line chatbot powered by LangChain and Ollama (Mistral model). This project demonstrates how to build a conversational AI assistant that maintains chat history across sessions using JSON files.
+A simple, session-based command-line chatbot powered by LangChain and Mistral LLM via Ollama. This project demonstrates how to build a conversational AI assistant that maintains chat history across sessions using JSON files.
 
 ## Features
 - **Session Management:** Create, resume, and clear chat sessions. Each session's history is stored in a separate JSON file.
