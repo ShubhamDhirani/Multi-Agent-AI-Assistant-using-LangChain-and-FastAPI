@@ -1,5 +1,7 @@
 # QnA Chatbot
 
+![WIP](https://img.shields.io/badge/status-WIP-orange)
+
 A simple, session-based command-line chatbot powered by LangChain and Mistral LLM via Ollama. This project demonstrates how to build a conversational AI assistant that maintains chat history across sessions using JSON files.
 
 ## Features
