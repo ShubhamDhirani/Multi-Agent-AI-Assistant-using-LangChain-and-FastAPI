@@ -7,7 +7,7 @@ A simple, session-based command-line chatbot powered by LangChain and Mistral LL
 ## Features
 - **Session Management:** Create, resume, delete, rename and clear chat sessions. Each session's history is stored in a separate JSON file.
 - **Streaming Responses:** Real-time streaming of AI responses for a natural chat experience.
-- **Memory Buffer:** Uses LangChain's `ConversationBufferMemory` to maintain context within each session.
+- **Memory Buffer:** Uses LangChain's `ConversationBufferMemory` to maintain context within each session. Also records timestamps for each user and AI message in session history.
 - **Customizable System Prompt:** The assistant is concise, knowledgeable, and avoids repeating user input.
 
 ## Requirements

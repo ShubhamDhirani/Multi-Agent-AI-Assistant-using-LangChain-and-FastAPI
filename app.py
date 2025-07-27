@@ -5,6 +5,7 @@ from langchain_ollama import OllamaLLM as Ollama
 from langchain.memory import ConversationBufferMemory
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain.prompts import ChatPromptTemplate
+from datetime import datetime
 
 SESSIONS_DIR = Path("sessions")
 SESSIONS_DIR.mkdir(exist_ok=True)
@@ -119,7 +120,10 @@ while True:
         continue    
 
     memory.chat_memory.add_user_message(user_input)
-    history_data.append({"role":"user","content":user_input})
+    history_data.append({"role":"user",
+                         "content":user_input,
+                         "timestamp": datetime.now().isoformat()
+                        })
 
     system_msg = SystemMessage(content=system_prompt)
     full_convo = [system_msg] + memory.chat_memory.messages[:-1] + [HumanMessage(content=user_input)]
@@ -134,7 +138,10 @@ while True:
     print("\n")
 
     memory.chat_memory.add_ai_message(response)
-    history_data.append({"role":"ai","content":response})
+    history_data.append({"role":"ai",
+                         "content":response,
+                         "timestamp": datetime.now().isoformat()
+                        })
 
     session_file.write_text(json.dumps(history_data, ensure_ascii=False,indent = 2),encoding = "utf-8")    
 
