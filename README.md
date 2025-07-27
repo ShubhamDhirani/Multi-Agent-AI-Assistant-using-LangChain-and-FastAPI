@@ -5,7 +5,7 @@
 A simple, session-based command-line chatbot powered by LangChain and Mistral LLM via Ollama. This project demonstrates how to build a conversational AI assistant that maintains chat history across sessions using JSON files.
 
 ## Features
-- **Session Management:** Create, resume, and clear chat sessions. Each session's history is stored in a separate JSON file.
+- **Session Management:** Create, resume, delete and clear chat sessions. Each session's history is stored in a separate JSON file.
 - **Streaming Responses:** Real-time streaming of AI responses for a natural chat experience.
 - **Memory Buffer:** Uses LangChain's `ConversationBufferMemory` to maintain context within each session.
 - **Customizable System Prompt:** The assistant is concise, knowledgeable, and avoids repeating user input.
@@ -31,6 +31,7 @@ A simple, session-based command-line chatbot powered by LangChain and Mistral LL
    - Type your message and press Enter.
    - Type `clear` to reset the current session.
    - Type `exit` or `quit` to end the chat.
+   - Type `delete` to remove an existing session.
 
 ## File Structure
 - `app.py` — Main chatbot application.
