@@ -14,20 +14,37 @@ def list_sessions():
     return [p.stem for p in sorted(SESSIONS_DIR.glob("*.json"), key = lambda x: x.stat().st_ctime)]
 
 def choose_session():
-    existing = list_sessions()
-    if existing:
-        print("Existing Sessions:")
-        for i, s in enumerate(existing, 1):
-            print(f" {i}.{s}")
-        print("Enter a number to resume, or type a new name to create:")
-        choice = input("> ").strip()
-        if choice.isdigit() and 1 <= int(choice) <= len(existing):
-            return existing[int(choice)-1]
-        return choice
-    else:
-        print("No sessions yet. Enter a name to create one:")
-        return input("> ").strip()
-    
+    while True:
+        existing = list_sessions()
+        if existing:
+            print("Existing Sessions:")
+            for i, s in enumerate(existing, 1):
+                print(f" {i}.{s}")
+            print("Type the number to resume a session,")
+            print("or type a new name to create one,")
+            print("or type 'delete' to remove a session.")
+            choice = input("> ").strip()
+
+            if choice.lower() == "delete":
+                print("\nWhich session would you like to delete?")
+                del_choice = input("Enter number to delete or 'cancel':").strip()
+                if del_choice.isdigit() and 1 <= int(del_choice) <= len(existing):
+                    del_session = existing[int(del_choice) - 1]
+                    os.remove(SESSIONS_DIR / f"{del_session}.json")
+                    print(f"Deleted Session: {del_session}\n")
+                elif del_choice.lower() == "cancel":
+                    print("Cancelled Deletion.\n")
+                else:
+                    print("Invalid Input. Try again. \n")
+                continue
+            elif choice.isdigit() and 1 <= int(choice) <= len(existing):
+                return existing[int(choice) - 1]
+            return choice
+        else:
+            print("No sessions yet. Enter a name to create one:")
+            return input("> ").strip()
+
+
 session_id = choose_session()
 session_file = SESSIONS_DIR / f"{session_id}.json"
 if not session_file.exists():
