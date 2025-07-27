@@ -20,10 +20,16 @@ def choose_session():
             print("Existing Sessions:")
             for i, s in enumerate(existing, 1):
                 print(f" {i}.{s}")
-            print("Type the number to resume a session,")
-            print("or type a new name to create one,")
-            print("or type 'delete' to remove a session.")
+            print("\nOptions")
+            print(" - Type the number to resume a session")
+            print(" - Type a new name to create one")
+            print(" - Type 'delete' to remove a session.")
+            print(" - Type 'exit' to quit the chatbot")
             choice = input("> ").strip()
+
+            if choice.lower() in ("exit","quit"):
+                print("Goodbye !")
+                exit()
 
             if choice.lower() == "delete":
                 print("\nWhich session would you like to delete?")
@@ -39,12 +45,24 @@ def choose_session():
                 continue
             elif choice.isdigit() and 1 <= int(choice) <= len(existing):
                 return existing[int(choice) - 1]
+            
+            if choice == "":
+                print("Session name cannot be empty.\n")
+                continue
+            
             return choice
+        
         else:
             print("No sessions yet. Enter a name to create one:")
-            return input("> ").strip()
-
-
+            choice = input("> ").strip()
+            if choice.lower() in ("exit","quit"):
+                print("Goodbye !")
+                exit()
+            if choice == "":
+                print("Session name cannot be empty. \n")
+                continue
+            return choice
+              
 session_id = choose_session()
 session_file = SESSIONS_DIR / f"{session_id}.json"
 if not session_file.exists():
@@ -87,6 +105,18 @@ while True:
         session_file.write_text("[]",encoding = "utf-8")
         print("\nSession memory CLEARED")
         continue
+
+    if user_input.lower().startswith("/rename"):
+        new_name = input("Enter new name for this session: ").strip()
+        new_file = SESSIONS_DIR / f"{new_name}.json"
+        if new_file.exists():
+            print("A session with that name already exists.\n")
+        else:
+            session_file.rename(new_file)
+            session_id = new_name
+            session_file = new_file    
+            print(f"Session renamed to: {new_name}\n")
+        continue    
 
     memory.chat_memory.add_user_message(user_input)
     history_data.append({"role":"user","content":user_input})
