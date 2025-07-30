@@ -2,14 +2,14 @@
 
 ![WIP](https://img.shields.io/badge/status-WIP-orange)
 
-A simple, modular QnA chatbot powered by LangChain and Mistral LLM via Ollama. This project demonstrates how to build a conversational AI assistant with persistent session support, a FastAPI backend, and an advanced MCP server with tools.
+A modular QnA chatbot powered by LangChain and Mistral LLM via Ollama. Features persistent session support, a FastAPI backend, and an advanced MCP server with a LangChain agent that orchestrates Wikipedia and calculator tools.
 
 ## Features
 - **Session Management:** Create, resume, delete, rename, and clear chat sessions. Each session's history is stored in a separate JSON file.
 - **Streaming Responses:** Real-time streaming of AI responses for a natural chat experience.
 - **Memory Buffer:** Uses LangChain's `ConversationBufferMemory` to maintain context within each session. Also records timestamps for each user and AI message in session history.
 - **FastAPI Backend:** RESTful `/chat` endpoint for integration with web frontends or other clients.
-- **MCP Server:** Advanced FastAPI server (`mcp_server.py`) with Wikipedia and Python calculator tools for enhanced Q&A.
+- **MCP Server with Agent:** Advanced FastAPI server (`mcp_server.py`) that uses a LangChain agent to orchestrate Wikipedia and Python calculator tools for enhanced Q&A. Supports session-based memory and persistent chat history.
 - **Customizable System Prompt:** The assistant is concise, knowledgeable, and avoids repeating user input.
 
 ## Requirements
@@ -50,11 +50,12 @@ uvicorn main:app --reload
 - The API will be available at `http://127.0.0.1:8000/chat` (POST endpoint).
 > Note: `/chat` is a POST endpoint. Use `curl`, Postman, or your frontend code—not directly in the browser.
 
-### 5. Start the MCP server (with tools):
+### 5. Start the MCP server (with agent and tools):
 ```bash
 uvicorn mcp_server:app --reload --port 8001
 ```
 - The MCP API will be available at `http://127.0.0.1:8001/mcp` (POST endpoint).
+- The MCP server uses a LangChain agent that can reason and decide when to use the Wikipedia or calculator tools to answer user queries.
 
 ### 6. Interact (CLI):
 - Type your message and press Enter.
@@ -82,21 +83,22 @@ Response:
 Send a POST request to `/mcp` with JSON:
 ```json
 {
-  "user_input": "What is the capital of France?"
+  "user_input": "What is the capital of France?",
+  "session_id": "your_session_name"  // optional
 }
 ```
 Response:
 ```json
 {
   "response": "Paris is the capital of France.",
-  "session_id": "default"
+  "session_id": "your_session_name"
 }
 ```
 
 ## File Structure
 - `app.py` — Main chatbot application (CLI).
 - `main.py` — FastAPI backend exposing a `/chat` endpoint.
-- `mcp_server.py` — Advanced FastAPI backend with Wikipedia and calculator tools.
+- `mcp_server.py` — Advanced FastAPI backend with a LangChain agent that orchestrates Wikipedia and calculator tools, session memory, and persistent history.
 - `chatbot.py` — Chat logic used by both CLI and API.
 - `sessions/` — Stores session history as JSON files.
 - `requirements.txt` — Project dependencies.
@@ -123,11 +125,11 @@ Response:
 ```bash
 curl -X POST "http://127.0.0.1:8001/mcp" \
      -H "Content-Type: application/json" \
-     -d '{"user_input": "2+2"}'
+     -d '{"user_input": "2+2", "session_id": "test"}'
 ```
 Response:
 ```json
-{"response": "4", "session_id": "default"}
+{"response": "4", "session_id": "test"}
 ```
 
 ## License
