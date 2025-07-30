@@ -10,6 +10,38 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from langchain_experimental.tools import PythonREPLTool
 from langchain_ollama import OllamaLLM
 
+from chatbot import get_chat_response
+from langchain.memory import ConversationBufferMemory
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+import json
+from pathlib import Path
+
+from datetime import datetime
+
+
+SESSIONS_DIR = Path("sessions")
+SESSIONS_DIR.mkdir(exist_ok = True)
+
+def load_memory_from_session(session_id: str) -> ConversationBufferMemory:
+    
+    memory = ConversationBufferMemory(
+        memory_key = "chat_history",
+        input_key = "input",
+        return_messages=True
+    )
+    
+    session_file = SESSIONS_DIR / f"{session_id}.json"
+    if not session_file.exists():
+        return memory
+    
+    history_data = json.loads(session_file.read_text(encoding = "utf-8"))
+    for turn in history_data:
+        if turn["role"] == "user":
+            memory.chat_memory.add_user_message(turn["content"])
+        elif turn["role"] == "ai":
+            memory.chat_memory.add_ai_message(turn["content"])
+    return memory            
+
 app = FastAPI(title = "MCP Server")
 
 class PromptRequest(BaseModel):
@@ -17,6 +49,12 @@ class PromptRequest(BaseModel):
     session_id: Optional[str] = None
 
 llm = OllamaLLM(model="mistral")
+
+system_prompt = (
+    "You are a concise, highly knowledgeable AI assistant."
+    "Answer clearly, directly and to the point. "
+    "Avoid repeating the user's input. Maintain a helpful and polite tone. "
+)
 
 wikipedia_tool = Tool(
     name = "Wikipedia",
@@ -37,21 +75,54 @@ math_tool = Tool(
 
 tools = [wikipedia_tool,math_tool]
 
-def orchestrate_conversation(user_input: str) -> str:
+def orchestrate_conversation(user_input: str, session_id: str) -> str:
+    
+    memory = load_memory_from_session(session_id)            
+
     agent = initialize_agent(
         tools,
         llm,
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
+        memory=memory,
+        handle_parsing_errors = False,
         verbose = True
     )
-    return agent.run(user_input)
+    result = agent.run(user_input)
+    return result 
 
 @app.post("/mcp")
 async def route_prompt(request: PromptRequest):
-    result = orchestrate_conversation(request.user_input)
+    session_id = request.session_id or "default"
+    user_input = request.user_input
+
+    result = orchestrate_conversation(user_input, session_id)
+
+    session_file = SESSIONS_DIR / f"{session_id}.json"
+    if not session_file.exists():
+        session_file.write_text("[]",encoding = "utf-8")
+
+    history_data = json.loads(session_file.read_text(encoding = "utf-8"))
+
+    history_data.append({
+        "role":"user",
+        "content":user_input,
+        "timestamp":datetime.now().isoformat()
+    }) 
+
+    history_data.append({
+        "role":"ai",
+        "content":result,
+        "timestamp":datetime.now().isoformat()
+    })
+
+    session_file.write_text(
+        json.dumps(history_data, ensure_ascii = False, indent = 2),
+        encoding = "utf-8"
+    )   
+
     return{
         "response": result,
-        "session_id": request.session_id or "default"
+        "session_id": session_id
     }    
 
 if __name__ == "__main__":
