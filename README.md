@@ -1,5 +1,5 @@
 
-# QnA Chatbot
+# Multi Agent AI Assistant using Langchain and FastAPI
 
 ## Technologies & Libraries Used
 - [LangChain](https://github.com/langchain-ai/langchain): LLM orchestration, agent, and tool framework.
@@ -36,6 +36,7 @@ A modular QnA chatbot powered by LangChain and Mistral LLM via Ollama. Features 
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [uvicorn](https://www.uvicorn.org/) (for running the FastAPI server)
 - [pydantic](https://docs.pydantic.dev/)
+- [React](https://react.dev/) (frontend, in `chatbot-frontend/`)
 - [spacy](https://spacy.io/) (for coreference resolution)
 - [huggingface-hub](https://pypi.org/project/huggingface-hub/) (for PDF embeddings)
 
@@ -169,8 +170,22 @@ Response:
 
 ## Example (MCP API)
 ```bash
+- `chatbot-frontend/` — React frontend for chat UI.
 curl -X POST "http://127.0.0.1:8001/mcp" \
      -H "Content-Type: application/json" \
+fastapi
+uvicorn
+langchain
+langchain-community
+langchain-ollama
+langchain-experimental
+langgraph
+faiss-cpu
+pydantic
+spacy
+huggingface-hub
+# Frontend requirements (React):
+# See chatbot-frontend/package.json for npm dependencies
      -d '{"user_input": "2+2", "session_id": "test"}'
 ```
 Response:
