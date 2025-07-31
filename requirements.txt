@@ -4,4 +4,8 @@ langchain
 langchain-community
 langchain-ollama
 langchain-experimental
+langgraph
+faiss-cpu
 pydantic
+spacy
+huggingface-hub

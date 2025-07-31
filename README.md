@@ -1,27 +1,44 @@
+
 # QnA Chatbot
+
+## Technologies & Libraries Used
+- [LangChain](https://github.com/langchain-ai/langchain): LLM orchestration, agent, and tool framework.
+- [LangGraph](https://github.com/langchain-ai/langgraph): Graph-based conversational state management and agent flows.
+- [FAISS](https://github.com/facebookresearch/faiss): Vector database for fast similarity search and PDF retrieval.
+- [spaCy](https://spacy.io/): NLP and coreference resolution.
+- [HuggingFace Transformers & Hub](https://huggingface.co/): Embeddings for PDF chunking and retrieval.
+- [FastAPI](https://fastapi.tiangolo.com/): API backend for chat and MCP endpoints.
+- [Uvicorn](https://www.uvicorn.org/): ASGI server for FastAPI.
+- [Pydantic](https://docs.pydantic.dev/): Data validation and settings management.
+- [Ollama](https://ollama.com/): Local LLM serving (Mistral model).
 
 ![WIP](https://img.shields.io/badge/status-WIP-orange)
 
 A modular QnA chatbot powered by LangChain and Mistral LLM via Ollama. Features persistent session support, a FastAPI backend, and an advanced MCP server with a LangChain agent that orchestrates Wikipedia and calculator tools.
 
-## Features
 - **Session Management:** Create, resume, delete, rename, and clear chat sessions. Each session's history is stored in a separate JSON file.
 - **Streaming Responses:** Real-time streaming of AI responses for a natural chat experience.
 - **Memory Buffer:** Uses LangChain's `ConversationBufferMemory` to maintain context within each session. Also records timestamps for each user and AI message in session history.
 - **FastAPI Backend:** RESTful `/chat` endpoint for integration with web frontends or other clients.
-- **MCP Server with Agent:** Advanced FastAPI server (`mcp_server.py`) that uses a LangChain agent to orchestrate Wikipedia and Python calculator tools for enhanced Q&A. Supports session-based memory and persistent chat history.
+- **MCP Server with Agent:** Advanced FastAPI server (`mcp_server.py`) that uses a LangChain agent to orchestrate Wikipedia, Python calculator, and PDF_QA tools for enhanced Q&A. Supports session-based memory and persistent chat history.
+- **PDF Upload & QA:** Upload a PDF per session and ask questions about its content using the PDF_QA tool. Includes a test endpoint to directly query the PDF vectorstore.
 - **Customizable System Prompt:** The assistant is concise, knowledgeable, and avoids repeating user input.
 
-## Requirements
+
 - Python 3.8+
 - [LangChain](https://github.com/langchain-ai/langchain)
+- [LangGraph](https://github.com/langchain-ai/langgraph)
 - [Ollama](https://ollama.com/)
 - [langchain_ollama](https://pypi.org/project/langchain-ollama/)
 - [langchain-community](https://pypi.org/project/langchain-community/)
 - [langchain-experimental](https://pypi.org/project/langchain-experimental/)
+- [faiss-cpu](https://github.com/facebookresearch/faiss) (for vector search)
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [uvicorn](https://www.uvicorn.org/) (for running the FastAPI server)
 - [pydantic](https://docs.pydantic.dev/)
+- [spacy](https://spacy.io/) (for coreference resolution)
+- [huggingface-hub](https://pypi.org/project/huggingface-hub/) (for PDF embeddings)
+
 
 Or simply:
 ```bash
@@ -79,7 +96,36 @@ Response:
 }
 ```
 
-### 8. Interact (MCP API):
+
+### 8. Upload a PDF for a session:
+Send a POST request to `/upload_pdf` with form-data:
+- `session_id`: your session name
+- `file`: the PDF file to upload
+
+Example using curl:
+```bash
+curl -X POST "http://127.0.0.1:8001/upload_pdf" \
+     -F "session_id=test" \
+     -F "file=@/path/to/your.pdf"
+```
+Response:
+```json
+{"message": "PDF uploaded and processed for session 'test'"}
+```
+
+### 9. Test PDF vectorstore retrieval (debug):
+Send a GET request to `/test_pdf_vectorstore/{session_id}?query=your+question`
+
+Example:
+```bash
+curl "http://127.0.0.1:8001/test_pdf_vectorstore/test?query=What+is+the+job+title"
+```
+Response:
+```json
+{"chunks": ["...relevant PDF chunk..."]}
+```
+
+### 10. Interact (MCP API):
 Send a POST request to `/mcp` with JSON:
 ```json
 {
